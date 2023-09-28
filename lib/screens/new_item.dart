@@ -35,15 +35,16 @@ class NewItemScreen extends StatelessWidget {
         print(response.body);
         print(response.statusCode);
         if (!context.mounted) return;
-        Navigator.of(context).pop();
-        // Navigator.of(context).pop(
-        //   GroceryItem(
-        //     id: DateTime.now().toString(),
-        //     name: enteredName,
-        //     quantity: enteredQuantity,
-        //     category: selectedCategory,
-        //   ),
-        // );
+        final Map<String, dynamic> resData = json.decode(response.body);
+
+        Navigator.of(context).pop(
+          GroceryItem(
+            id: resData['name'],
+            name: enteredName,
+            quantity: enteredQuantity,
+            category: selectedCategory,
+          ),
+        );
       }
     }
 
