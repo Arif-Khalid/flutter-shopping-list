@@ -29,30 +29,42 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
     final url = Uri.https(
         'flutter-prep-2964f-default-rtdb.asia-southeast1.firebasedatabase.app',
         'shopping-list.json');
-    final response = await http.get(url);
-    if (response.statusCode >= 400) {
-      setState(() {
-        _error = 'Failed to fetch data. Please try again later.';
-      });
-    }
+    try {
+      final response = await http.get(url);
+      if (response.statusCode >= 400) {
+        setState(() {
+          _error = 'Failed to fetch data. Please try again later.';
+        });
+        return;
+      }
 
-    final Map<String, dynamic> listData = json.decode(response.body);
-    final List<GroceryItem> newGroceryItems = [
-      for (final item in listData.entries)
-        GroceryItem(
-          id: item.key,
-          name: item.value['name'],
-          quantity: item.value['quantity'],
-          category: categories.entries
-              .firstWhere(
-                  (element) => element.value.name == item.value['category'])
-              .value,
-        ),
-    ];
-    setState(() {
-      _groceryItems = newGroceryItems;
-      _isLoading = false;
-    });
+      if (response.body == 'null') {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final Map<String, dynamic> listData = json.decode(response.body);
+      final List<GroceryItem> newGroceryItems = [
+        for (final item in listData.entries)
+          GroceryItem(
+            id: item.key,
+            name: item.value['name'],
+            quantity: item.value['quantity'],
+            category: categories.entries
+                .firstWhere(
+                    (element) => element.value.name == item.value['category'])
+                .value,
+          ),
+      ];
+      setState(() {
+        _groceryItems = newGroceryItems;
+        _isLoading = false;
+      });
+    } catch (err) {
+      _error = 'Something went wrong. Please try again later';
+    }
   }
 
   void _addItem() async {
