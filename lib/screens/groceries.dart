@@ -16,6 +16,7 @@ class GroceriesScreen extends StatefulWidget {
 
 class _GroceriesScreenState extends State<GroceriesScreen> {
   bool _isLoading = true;
+  String? _error;
   List<GroceryItem> _groceryItems = [];
 
   @override
@@ -29,6 +30,12 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
         'flutter-prep-2964f-default-rtdb.asia-southeast1.firebasedatabase.app',
         'shopping-list.json');
     final response = await http.get(url);
+    if (response.statusCode >= 400) {
+      setState(() {
+        _error = 'Failed to fetch data. Please try again later.';
+      });
+    }
+
     final Map<String, dynamic> listData = json.decode(response.body);
     final List<GroceryItem> newGroceryItems = [
       for (final item in listData.entries)
@@ -71,7 +78,11 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
   @override
   Widget build(BuildContext context) {
     Widget activeWidget;
-    if (_isLoading) {
+    if (_error != null) {
+      activeWidget = Center(
+        child: Text(_error!),
+      );
+    } else if (_isLoading) {
       activeWidget = const Center(child: CircularProgressIndicator());
     } else if (_groceryItems.isEmpty) {
       activeWidget = const Center(
