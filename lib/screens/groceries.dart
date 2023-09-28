@@ -15,6 +15,7 @@ class GroceriesScreen extends StatefulWidget {
 }
 
 class _GroceriesScreenState extends State<GroceriesScreen> {
+  bool _isLoading = true;
   List<GroceryItem> _groceryItems = [];
 
   @override
@@ -43,6 +44,7 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
     ];
     setState(() {
       _groceryItems = newGroceryItems;
+      _isLoading = false;
     });
   }
 
@@ -69,7 +71,9 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
   @override
   Widget build(BuildContext context) {
     Widget activeWidget;
-    if (_groceryItems.isEmpty) {
+    if (_isLoading) {
+      activeWidget = const Center(child: CircularProgressIndicator());
+    } else if (_groceryItems.isEmpty) {
       activeWidget = const Center(
         child: Text('You have no items 🥲'),
       );

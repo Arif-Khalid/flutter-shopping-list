@@ -16,8 +16,11 @@ class NewItemScreen extends StatelessWidget {
     String enteredName = '';
     int enteredQuantity = 1;
     Category selectedCategory = categories[Categories.vegetables]!;
+    bool isSending = false;
     void saveItem() async {
+      if (isSending) return;
       if (_formKey.currentState!.validate()) {
+        isSending = true;
         _formKey.currentState!.save();
         final url = Uri.https(
             'flutter-prep-2964f-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -31,12 +34,9 @@ class NewItemScreen extends StatelessWidget {
             'category': selectedCategory.name,
           }),
         );
-
-        print(response.body);
-        print(response.statusCode);
         if (!context.mounted) return;
         final Map<String, dynamic> resData = json.decode(response.body);
-
+        isSending = false;
         Navigator.of(context).pop(
           GroceryItem(
             id: resData['name'],
@@ -133,6 +133,8 @@ class NewItemScreen extends StatelessWidget {
                   children: [
                     TextButton(
                       onPressed: () {
+                        if (isSending) return;
+                        print('I am resetting');
                         _formKey.currentState!.reset();
                       },
                       child: const Text('Reset'),
